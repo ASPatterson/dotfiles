@@ -14,6 +14,7 @@ HISTFILESIZE=2000
 #PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND ; }"'echo `dt` `pwd` $$ $USER \
 #               "$(history 1)" >> ~/.bash_eternal_history'
 
+
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
 shopt -s checkwinsize
