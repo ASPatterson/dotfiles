@@ -5,7 +5,17 @@
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
-PS1="\[\033[01;34m\][\t]\[\e[0m\] \[\033[00;34m\][\u@\h]\[\e[0m\] \w \[\033[01;32m\]> \[\e[0m\] "
+#prompt string
+parse_git_branch() {
+     git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
+}
+#OLD PS1="\[\033[01;34m\][\t]\[\e[0m\] \[\033[00;34m\][\u@\h]\[\e[0m\] \w \[\033[01;32m\]> \[\e[0m\] "
+PS1="\[\033[01;34m\][\t]\[\e[0m\] \[\033[00;34m\][\u@\h]\[\e[0m\] \w\[\e[0m\]\[\033[33m\]\$(parse_git_branch)\[\033[00m\]\[\033[01;32m\]> \[\e[0m\]"
+#PS1="\u@\h \[\033[32m\]\w\[\033[33m\]\$(parse_git_branch)\[\033[00m\] $ "
+
+if [ -n "$PS1" ]; then # if statement guards adding these helpers for non-interative shells
+  eval "$(~/base16-shell/profile_helper.sh)"
+fi
 
 # history
 shopt -s histappend
@@ -13,7 +23,6 @@ HISTSIZE=1000
 HISTFILESIZE=2000
 #PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND ; }"'echo `dt` `pwd` $$ $USER \
 #               "$(history 1)" >> ~/.bash_eternal_history'
-
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
@@ -34,14 +43,16 @@ alias n='nano'
 alias rl='root -l'
 alias dt='date "+%F %T"'
 function cl(){ cd "$@" && ls -lrth; }
+function diffdir(){ diff -rq "$1" "$2"; }
 alias ..="cd .."
 alias ..2="cd ../.."
 alias ..3="cd ../../.."
 alias ..4="cd ../../../.."
 alias ..5="cd ../../../../.."
+alias fuck='sudo $(history -p \!\!)'
 
 # passy
-alias randbase64='openssl rand -base64 15'
+alias rand64='openssl rand -base64 15'
 alias randhex='openssl rand -hex 16'
 
 # misc
@@ -63,14 +74,34 @@ alias scanwifi='sudo iwlist wlp2s0 scan|grep -A5 \(Channel'
 alias space='df -h .'
 alias chromepdf='google-chrome --headless --disable-gpu --print-to-pdf'
 alias chromepng='google-chrome --headless --disable-gpu --screenshot --window-size=1280,1696'
-alias forgotctrl='echo -e "\n Ctrl+A jump to start, E to end; K to wipe after cursor, U to wipe before. \n"'
+alias forgotctrl='echo -e "\n Ctrl+A jump to start, E to end; W to wipe arg, K to wipe after cursor, U to wipe before. \n"'
+alias red='rtv --enable-media'
+alias spooky='play -n synth sin 900 bend 0.3,800,1 bend 1.2,-150,1 trim 0 3.5 reverb -w'
+alias longline='awk '"'"'length>m{delete a;a[$0]=0;m=length}length==m{a[$0]=0}END{for(i in a)print i}'"'"
+#printf "aa\nbb\ncc\n" | longline -
+alias makeoneline='tr "\n\r" " " <'
+alias whatsup='sudo fatrace'
+alias obj='objdump -Mintel -F -d'
 
 listlarge () {
   find $1 -type f -exec du -Sh {} + | sort -rh | head -n 10
 }
 
 # exec
-source ~/root/bin/thisroot.sh
+#source ~/root/bin/thisroot.sh
+
+htd () {
+  printf "%d\n" $1 # depends on 0x prefix
+  # echo $(($1)) # depends on 0x prefix
+  # echo $((16#$1)) # depends on no prefix
+  # echo "ibase=16; $1" | bc # depends on no prefix
+  # python -c 'print(int("$1",16))' # broken ticks
+}
+dth () {
+  printf "0x%x\n" $1
+}
+# complex math - use dc
+# dc -e '16i FF 01 - p 10o p'
 
 go () {
    case "$1" in
@@ -145,3 +176,10 @@ for FGs in '    m' '   1m' '  30m' '1;30m' '  31m' '1;31m' '  32m' \
 done
 echo
 }
+
+# added by Anaconda3 installer
+export PATH="/home/user/anaconda3/bin:$PATH"
+
+if [ -f $HOME/bash-insulter/src/bash.command-not-found ]; then
+    source $HOME/bash-insulter/src/bash.command-not-found
+fi
