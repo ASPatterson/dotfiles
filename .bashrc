@@ -1,3 +1,5 @@
+# man for the common man: https://tldr.ostera.io/
+
 # ~/.bashrc: executed by bash(1) for non-login shells.
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
@@ -32,7 +34,17 @@ shopt -s checkwinsize
 alias killthis='exec 0>&-'
 alias killjobs='kill -KILL $(jobs -p)'
 
+# images
+# find *.JPG -exec convert {} -resize 800x600\> {} \;
+function resizejpg {
+    convert $1 -resize 800x600\> $2
+}
+
 # ll, dir, etc
+alias grep='grep --color=always'
+function grepcolor {
+    grep --color -E "$1|$" $2 # keeps non-matching lines
+}
 alias less='less --RAW-CONTROL-CHARS'
 export LS_OPTS='--color=auto' #--color=never
 alias ls='ls ${LS_OPTS}'
@@ -55,7 +67,17 @@ alias fuck='sudo $(history -p \!\!)'
 alias rand64='openssl rand -base64 15'
 alias randhex='openssl rand -hex 16'
 
+# images
+alias getimagesize='identify -format "%w%h"'
+# resize: convert image.jpg -resize 800x600\> image-small.jpg
+
 # misc
+alias yt='youtube-dl'
+alias whichpackage='apt-file search' # dpkg -S <file>
+alias wrap='fmt -w 80 <<<'
+alias gpg='gpg --keyid-format LONG'
+alias base64d='base64 -d <<< '
+alias base64e='base64 <<< '
 #alias bl='xrandr --output DP-0 --brightness'
 alias bl='xbacklight -set'
 #function dim() {
@@ -82,6 +104,27 @@ alias longline='awk '"'"'length>m{delete a;a[$0]=0;m=length}length==m{a[$0]=0}EN
 alias makeoneline='tr "\n\r" " " <'
 alias whatsup='sudo fatrace'
 alias obj='objdump -Mintel -F -d'
+alias hyperspace='ssh -J user1@host1 user2@host2' # ProxyCommand is pre-17.04 way
+alias greplinks='sed -n '"'"'s/.*href="\([^"]*\).*/\1/p'"'"
+alias forfile='while read p; do echo $p; done <'
+alias aslr='bash -c '"'"'grep heap /proc/$$/maps'"'"
+alias letitsnow='clear;while :;do echo $LINES $COLUMNS $(($RANDOM%$COLUMNS));sleep 0.1;done|gawk '"'"'{a[$3]=0;for(x in a) {o=a[x];a[x]=a[x]+1;printf "\033[%s;%sH ",o,x;printf "\033[%s;%sH*\033[0;0H",a[x],x;}}'"'"
+
+## PRETTYPRINT JSON
+alias prettyprint='python -m json.tool <<< '
+# OR use jq. bao (be aware of) --sort-keys. works with curl.
+# alias prettyprint='jq . <<< '
+# OR use fxns
+#prettyjson_s() {
+#    echo "$1" | python -m json.tool
+#}
+#prettyjson_f() {
+#    python -m json.tool "$1"
+#}
+#prettyjson_w() {
+#    curl "$1" | python -m json.tool
+#}
+
 
 listlarge () {
   find $1 -type f -exec du -Sh {} + | sort -rh | head -n 10
