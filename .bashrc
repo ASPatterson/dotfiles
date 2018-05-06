@@ -1,5 +1,16 @@
 # man for the common man: https://tldr.ostera.io/
 
+###
+# FOR without do/done
+#for i in {1..10};{ echo "$i";}
+#for((i=0;i<=10;i++)); do echo "$i"; done
+# DATE without date
+#date "+%a %d %b  - %l:%M %p"
+#printf "%(%a %d %b  - %l:%M %p)T\\n"
+#printf -v date "%(%a %d %b  - %l:%M %p)T\\n"
+###
+
+
 # ~/.bashrc: executed by bash(1) for non-login shells.
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
@@ -15,9 +26,9 @@ parse_git_branch() {
 PS1="\[\033[01;34m\][\t]\[\e[0m\] \[\033[00;34m\][\u@\h]\[\e[0m\] \w\[\e[0m\]\[\033[33m\]\$(parse_git_branch)\[\033[00m\]\[\033[01;32m\]> \[\e[0m\]"
 #PS1="\u@\h \[\033[32m\]\w\[\033[33m\]\$(parse_git_branch)\[\033[00m\] $ "
 
-if [ -n "$PS1" ]; then # if statement guards adding these helpers for non-interative shells
-  eval "$(~/base16-shell/profile_helper.sh)"
-fi
+#if [ -n "$PS1" ]; then # if statement guards adding these helpers for non-interative shells
+#  eval "$(~/base16-shell/profile_helper.sh)"
+#fi
 
 # history
 shopt -s histappend
@@ -33,6 +44,7 @@ shopt -s checkwinsize
 # close output file descriptor 0, killing shell
 alias killthis='exec 0>&-'
 alias killjobs='kill -KILL $(jobs -p)'
+alias killport='sudo kill $(sudo lsof -t -i:5000)'
 
 # images
 # find *.JPG -exec convert {} -resize 800x600\> {} \;
@@ -45,15 +57,18 @@ alias grep='grep --color=always'
 function grepcolor {
     grep --color -E "$1|$" $2 # keeps non-matching lines
 }
+# prints dirs in which file extension $1 reside
+function inwhichdir {
+    find . -name "*.$1" | sed 's/\/[^\/]*$//' | sort | uniq
+}
 alias less='less --RAW-CONTROL-CHARS'
 export LS_OPTS='--color=auto' #--color=never
 alias ls='ls ${LS_OPTS}'
 alias ll='ls -larth'
-alias ldd='ls -d */'
+alias lsd='ls -d */'
 #alias countdirs='find . -maxdepth 1 -type d -print0 | xargs -0 -I {} sh -c 'echo -e $(find "{}" -printf "\n" | wc -l) "{}"' | sort -n'
-alias n='nano'
+alias n='nano' # -m for mouse mode
 alias rl='root -l'
-alias dt='date "+%F %T"'
 function cl(){ cd "$@" && ls -lrth; }
 function diffdir(){ diff -rq "$1" "$2"; }
 alias ..="cd .."
@@ -62,6 +77,8 @@ alias ..3="cd ../../.."
 alias ..4="cd ../../../.."
 alias ..5="cd ../../../../.."
 alias fuck='sudo $(history -p \!\!)'
+alias ex='exit'
+alias gtop='nodejs /usr/local/bin/gtop' #sort by p, c, m for pid, cpu, mem
 
 # passy
 alias rand64='openssl rand -base64 15'
@@ -72,7 +89,11 @@ alias getimagesize='identify -format "%w%h"'
 # resize: convert image.jpg -resize 800x600\> image-small.jpg
 
 # misc
+alias parrot='curl parrot.live'
+alias date='date --iso-8601' #--iso-8601=ns' #Year Month Day Hour Minute Secon Nanosecond Timezone
+#alias dt='date "+%F %T"'
 alias yt='youtube-dl'
+alias ytm='youtube-dl --extract-audio --audio-format mp3'
 alias whichpackage='apt-file search' # dpkg -S <file>
 alias wrap='fmt -w 80 <<<'
 alias gpg='gpg --keyid-format LONG'
@@ -191,6 +212,19 @@ SETCOLOR_WARNING="echo -en $COLOR_WARNING"
 SETCOLOR_NORMAL="echo -en $COLOR_NORMAL"
 SETCOLOR_NOTE="echo -en $COLOR_NOTE"
 
+trim() {
+    set -f
+    set -- $*
+    printf "%s\\n" "$*"
+    set +f
+}
+
+function hdspeed
+{
+  hdparm -tT /dev/sda
+  hdparm -l /dev/sda | grep -i speed
+  dmesg | grep -i sata | grep 'link up'
+}
 function rainbowparty
 {
 #
@@ -218,6 +252,12 @@ for FGs in '    m' '   1m' '  30m' '1;30m' '  31m' '1;31m' '  32m' \
   echo;
 done
 echo
+}
+
+rainymood() {
+  FILE=$((RANDOM%4))
+  URL="https://rainymood.com/audio1110/${FILE}.ogg"
+  mpv "$URL" && rainymood
 }
 
 # added by Anaconda3 installer
