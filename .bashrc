@@ -1,3 +1,7 @@
+#PS1 and aa_prompt_defaults
+#https://www.askapache.com/linux/bash-power-prompt/
+
+cd /home/user/
 # man for the common man: https://tldr.ostera.io/
 
 ###
@@ -23,8 +27,10 @@ parse_git_branch() {
      git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
 }
 #OLD PS1="\[\033[01;34m\][\t]\[\e[0m\] \[\033[00;34m\][\u@\h]\[\e[0m\] \w \[\033[01;32m\]> \[\e[0m\] "
-PS1="\[\033[01;34m\][\t]\[\e[0m\] \[\033[00;34m\][\u@\h]\[\e[0m\] \w\[\e[0m\]\[\033[33m\]\$(parse_git_branch)\[\033[00m\]\[\033[01;32m\]> \[\e[0m\]"
+#PS1="\[\033[01;34m\][\t]\[\e[0m\] \[\033[00;34m\][\u@\h]\[\e[0m\] \w\[\e[0m\]\[\033[33m\]\$(parse_git_branch)\[\033[00m\]\[\033[01;32m\]> \[\e[0m\]"
+#PS1="\[\033[01;34m\][\t]\[\e[0m\] \[\033[01;34m\][\u@\h]\[\e[0m\] \w\[\e[0m\]\[\033[33m\]\$(parse_git_branch)\[\033[00m\]\[\033[01;32m\]> \[\e[0m\]"
 #PS1="\u@\h \[\033[32m\]\w\[\033[33m\]\$(parse_git_branch)\[\033[00m\] $ "
+PS1="\n\[\e[1;30m\][$$:$PPID - \j:\!\[\e[1;30m\]]\[\e[0;36m\] \T \[\e[1;30m\][\[\e[1;34m\]\u@\H\[\e[1;30m\]:\[\e[0;37m\]${SSH_TTY:-o} \[\e[0;32m\]+${SHLVL}\[\e[1;30m\]] \[\e[1;37m\]\w\[\e[0;37m\] \n\$ "
 
 #if [ -n "$PS1" ]; then # if statement guards adding these helpers for non-interative shells
 #  eval "$(~/base16-shell/profile_helper.sh)"
@@ -79,6 +85,8 @@ alias ..5="cd ../../../../.."
 alias fuck='sudo $(history -p \!\!)'
 alias ex='exit'
 alias gtop='nodejs /usr/local/bin/gtop' #sort by p, c, m for pid, cpu, mem
+#alias robustsshfs='sshfs -o reconnect,ServerAliveInterval=15,ServerAliveCountMax=3,IdentityFile=/home/me/.ssh/id_rsa user@server:/home/user/dir dirshare/'
+
 
 # passy
 alias rand64='openssl rand -base64 15'
@@ -131,6 +139,12 @@ alias forfile='while read p; do echo $p; done <'
 alias aslr='bash -c '"'"'grep heap /proc/$$/maps'"'"
 alias letitsnow='clear;while :;do echo $LINES $COLUMNS $(($RANDOM%$COLUMNS));sleep 0.1;done|gawk '"'"'{a[$3]=0;for(x in a) {o=a[x];a[x]=a[x]+1;printf "\033[%s;%sH ",o,x;printf "\033[%s;%sH*\033[0;0H",a[x],x;}}'"'"
 
+# exif tools. extract useful info recursively, build into csv.
+#pdf# exiftool -csv -title -author -creator -creatortool -pagecount -pdfversion -createdate -r -ext pdf . > exifdata.csv
+#docx# exiftool -csv -title -creator -lastmodifiedby -company -application -template -words -appversion -docsecurity -createdate -r -ext  docx . > exif-docx.csv
+#ppt# exiftool -csv -title -titleofparts -currentuser -author -lastmodifiedby -company -software -codepage -words -notes -appversion -createdate -r -ext ppt . > exif-ppt.csv
+#general# exiftool -a -u -g2 -s <file.type>
+
 ## PRETTYPRINT JSON
 alias prettyprint='python -m json.tool <<< '
 # OR use jq. bao (be aware of) --sort-keys. works with curl.
@@ -166,39 +180,6 @@ dth () {
 }
 # complex math - use dc
 # dc -e '16i FF 01 - p 10o p'
-
-go () {
-   case "$1" in
-     uaf)    dest="apatters@uaf-10.t2.ucsd.edu" ;;
-     fnal)   dest="apatters@cmslpc-sl6.fnal.gov" ;;
-     server) dest="apatters@ucsbsrv2.cern.ch" ;;
-     lxplus) dest="apatters@lxplus.cern.ch" ;;
-     slac)   dest="apatters@rhel6-64.slac.stanford.edu" ;;
-     *) dest=$1 ;;
-   esac
-   ssh -Y $dest
-}
-
-xf () {
-   case "$1" in
-     uaf*) src=$(echo $1|sed 's|uaf|apatters@uaf-10.t2.ucsd.edu|') ;;
-     fnal*) src=$(echo $1|sed 's|fnal|apatters@cmslpc-sl6.fnal.gov|') ;;
-     server*) src=$(echo $1|sed 's|server|apatters@ucsbsrv2.cern.ch|') ;;
-     lxplus*) src=$(echo $1|sed 's|lxplus|apatters@lxplus.cern.ch|') ;;
-     slac*)   src=$(echo $1|sed 's|slac|apatters@rhel6-64.slac.stanford.edu|') ;;
-     *) src=$1 ;;
-   esac
-   case "$2" in
-    uaf*) dest=$(echo $2|sed 's|uaf|apatters@uaf-10.t2.ucsd.edu|') ;;
-     fnal*) dest=$(echo $2|sed 's|fnal|apatters@cmslpc-sl6.fnal.gov|') ;;
-     server*) dest=$(echo $2|sed 's|server|apatters@ucsbsrv2.cern.ch|') ;;
-     lxplus*) dest=$(echo $2|sed 's|lxplus|apatters@lxplus.cern.ch|') ;;
-     slac*)   dest=$(echo $2|sed 's|slac|apatters@rhel6-64.slac.stanford.edu|') ;;
-     *) dest=$2 ;;
-   esac
-#  echo $src $dest
-   scp $src $dest
-}
 
 # colors 
 COLOR_SUCCESS="\\033[1;32m"
@@ -266,3 +247,28 @@ export PATH="/home/user/anaconda3/bin:$PATH"
 if [ -f $HOME/bash-insulter/src/bash.command-not-found ]; then
     source $HOME/bash-insulter/src/bash.command-not-found
 fi
+
+
+###
+function aa_prompt_defaults ()
+{
+   local colors=`tput colors 2>/dev/null||echo -n 1` C=;
+
+   if [[ $colors -ge 256 ]]; then
+      C="`tput setaf 33 2>/dev/null`";
+      AA_P='mf=x mt=x n=0; while [[ $n < 1 ]];do read a mt a; read a mf a; (( n++ )); done</proc/meminfo; export AA_PP="\033[38;5;2m"$((mf/1024))/"\033[38;5;89m"$((mt/1024))MB; unset -v mf mt n a';
+   else
+      C="`tput setaf 4 2>/dev/null`";
+      AA_P='mf=x mt=x n=0; while [[ $n < 1 ]];do read a mt a; read a mf a; (( n++ )); done</proc/meminfo; export AA_PP="\033[92m"$((mf/1024))/"\033[32m"$((mt/1024))MB; unset -v mf mt n a';
+   fi;
+
+   eval $AA_P; 
+
+   PROMPT_COMMAND='stty echo; history -a; echo -en "\e[34h\e[?25h"; (($SECONDS % 2==0 )) && eval $AA_P; echo -en "$AA_PP";';
+   SSH_TTY=${SSH_TTY:-`tty 2>/dev/null||readlink /proc/$$/fd/0 2>/dev/null`}
+
+   PS1="\[\e[m\n\e[1;30m\][\$\$:\$PPID \j:\!\[\e[1;30m\]]\[\e[0;36m\] \T \d \[\e[1;30m\][${C}\u@\H\[\e[1;30m\]:\[\e[0;37m\]${SSH_TTY/\/dev\/} \[\e[0;32m\]+${SHLVL}\[\e[1;30m\]] \[\e[1;37m\]\w\[\e[0;37m\]\n\\$ ";
+
+   export PS1 AA_P PROMPT_COMMAND SSH_TTY
+}
+aa_prompt_defaults
