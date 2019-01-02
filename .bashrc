@@ -30,7 +30,7 @@ parse_git_branch() {
 #PS1="\[\033[01;34m\][\t]\[\e[0m\] \[\033[00;34m\][\u@\h]\[\e[0m\] \w\[\e[0m\]\[\033[33m\]\$(parse_git_branch)\[\033[00m\]\[\033[01;32m\]> \[\e[0m\]"
 #PS1="\[\033[01;34m\][\t]\[\e[0m\] \[\033[01;34m\][\u@\h]\[\e[0m\] \w\[\e[0m\]\[\033[33m\]\$(parse_git_branch)\[\033[00m\]\[\033[01;32m\]> \[\e[0m\]"
 #PS1="\u@\h \[\033[32m\]\w\[\033[33m\]\$(parse_git_branch)\[\033[00m\] $ "
-PS1="\n\[\e[1;30m\][$$:$PPID - \j:\!\[\e[1;30m\]]\[\e[0;36m\] \T \[\e[1;30m\][\[\e[1;34m\]\u@\H\[\e[1;30m\]:\[\e[0;37m\]${SSH_TTY:-o} \[\e[0;32m\]+${SHLVL}\[\e[1;30m\]] \[\e[1;37m\]\w\[\e[0;37m\] \n\$ "
+#PS1="\n\[\e[1;30m\][$$:$PPID - \j:\!\[\e[1;30m\]]\[\e[0;36m\] \T \[\e[1;30m\][\[\e[1;34m\]\u@\H\[\e[1;30m\]:\[\e[0;37m\]${SSH_TTY:-o} \[\e[0;32m\]+${SHLVL}\[\e[1;30m\]] \[\e[1;37m\]\w\[\e[0;37m\] \n\$ "
 
 #if [ -n "$PS1" ]; then # if statement guards adding these helpers for non-interative shells
 #  eval "$(~/base16-shell/profile_helper.sh)"
@@ -51,6 +51,17 @@ shopt -s checkwinsize
 alias killthis='exec 0>&-'
 alias killjobs='kill -KILL $(jobs -p)'
 alias killport='sudo kill $(sudo lsof -t -i:5000)'
+
+# git
+# use like
+#  git lg
+#  git lg-ascii # copy-pasting friendly
+#  git lg -p # diffs
+# via https://ma.ttias.be/pretty-git-log-in-one-line/
+# reference https://git-scm.com/book/en/v2/Git-Basics-Viewing-the-Commit-History
+#git config --global alias.lg "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+git config --global alias.lg "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative"
+git config --global alias.lg-ascii "log --graph --pretty=format:'%h -%d %s (%cr) <%an>' --abbrev-commit"
 
 # images
 # find *.JPG -exec convert {} -resize 800x600\> {} \;
@@ -264,11 +275,12 @@ function aa_prompt_defaults ()
 
    eval $AA_P; 
 
-   PROMPT_COMMAND='stty echo; history -a; echo -en "\e[34h\e[?25h"; (($SECONDS % 2==0 )) && eval $AA_P; echo -en "$AA_PP";';
+  # PROMPT_COMMAND='stty echo; history -a; echo -en "\e[34h\e[?25h"; (($SECONDS % 2==0 )) && eval $AA_P; echo -en "$AA_PP";';
    SSH_TTY=${SSH_TTY:-`tty 2>/dev/null||readlink /proc/$$/fd/0 2>/dev/null`}
 
    PS1="\[\e[m\n\e[1;30m\][\$\$:\$PPID \j:\!\[\e[1;30m\]]\[\e[0;36m\] \T \d \[\e[1;30m\][${C}\u@\H\[\e[1;30m\]:\[\e[0;37m\]${SSH_TTY/\/dev\/} \[\e[0;32m\]+${SHLVL}\[\e[1;30m\]] \[\e[1;37m\]\w\[\e[0;37m\]\n\\$ ";
 
-   export PS1 AA_P PROMPT_COMMAND SSH_TTY
+  # export PS1 AA_P PROMPT_COMMAND SSH_TTY
+   export PS1 AA_P SSH_TTY
 }
 aa_prompt_defaults
